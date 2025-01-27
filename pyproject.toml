@@ -1,0 +1,11 @@
+[project]
+name = "fortis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "geopandas>=1.0.1",
+    "pytest>=8.3.4",
+    "rasterio>=1.4.3",
+]
