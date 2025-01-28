@@ -6,6 +6,38 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "geopandas>=1.0.1",
-    "pytest>=8.3.4",
     "rasterio>=1.4.3",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    # ... other dev dependencies
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=fortis",  # Replace 'my_module' with the name of your module/package
+    "--cov-report=term", # Show coverage report in the terminal
+    "--cov-report=html", # Generate an HTML coverage report
+]
+
+[tool.coverage.run]
+source = ["fortis"]
+
+[tool.coverage.report]
+# exclude_lines is a list of regular expressions.
+# Here we exclude code used for type checking,
+# which is usually not executed.
+exclude_lines = [
+  "if TYPE_CHECKING:",
+]
+show_missing = true
+skip_covered = true
+
+[tool.uv.scripts]
+test = "pytest tests/"
+
+[tool.uv.workspace]
+members = ["fortis_data"]

@@ -1,7 +1,5 @@
 import pandas as pd
 import geopandas as gpd
-import fiona
-
 class BuildingPoints:
     def __init__(self, data_source, file_type=None, **kwargs):
         """
