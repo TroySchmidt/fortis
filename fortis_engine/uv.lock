@@ -152,7 +152,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fortis"
+name = "fortis-engine"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

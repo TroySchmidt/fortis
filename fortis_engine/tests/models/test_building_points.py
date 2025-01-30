@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import geopandas as gpd
-from fortis.models.building_points import BuildingPoints
+from fortis_engine.models.building_points import BuildingPoints
 
 @pytest.fixture
 def csv_data(tmp_path):

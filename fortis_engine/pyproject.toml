@@ -1,5 +1,5 @@
 [project]
-name = "fortis"
+name = "fortis_engine"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -18,13 +18,13 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = [
-    "--cov=fortis",  # Replace 'my_module' with the name of your module/package
+    "--cov=fortis_engine",  # Replace 'my_module' with the name of your module/package
     "--cov-report=term", # Show coverage report in the terminal
     "--cov-report=html", # Generate an HTML coverage report
 ]
 
 [tool.coverage.run]
-source = ["fortis"]
+source = ["fortis_engine"]
 
 [tool.coverage.report]
 # exclude_lines is a list of regular expressions.
@@ -36,8 +36,6 @@ exclude_lines = [
 show_missing = true
 skip_covered = true
 
-[tool.uv.scripts]
-test = "pytest tests/"
-
-[tool.uv.workspace]
-members = ["fortis_data"]
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+fortis_data = { path = "../fortis_data", develop = true } 

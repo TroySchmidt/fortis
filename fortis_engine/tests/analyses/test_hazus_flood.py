@@ -1,10 +1,10 @@
 import pytest
 import pandas as pd
 import geopandas as gpd
-from fortis.analyses.hazus_flood import HazusFloodAnalysis
-from fortis.models.building_points import BuildingPoints
-from fortis.vulnerability.default_flood import DefaultFloodFunction
-from fortis.models.hazard import Hazard
+from fortis_engine.analyses.hazus_flood import HazusFloodAnalysis
+from fortis_engine.models.building_points import BuildingPoints
+from fortis_engine.vulnerability.default_flood import DefaultFloodFunction
+from fortis_engine.models.hazard import Hazard
 
 @pytest.fixture
 def buildings():
