@@ -18,7 +18,7 @@ def buildings():
 
 @pytest.fixture
 def vulnerability_func():
-    return DefaultFloodFunction()
+    return DefaultFloodFunction('RISK-UE', buildings, 'CV')
 
 @pytest.fixture
 def hazard():
