@@ -2,9 +2,8 @@ import pytest
 import pandas as pd
 import geopandas as gpd
 from fortis_engine.analyses.hazus_flood import HazusFloodAnalysis
-from fortis_engine.models.building_points import BuildingPoints
+from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
 from fortis_engine.vulnerability.default_flood import DefaultFloodFunction
-from fortis_engine.models.hazard import Hazard
 
 @pytest.fixture
 def buildings():
@@ -14,25 +13,27 @@ def buildings():
     }
     df = pd.DataFrame(data)
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
-    return BuildingPoints(data_source=gdf)
+    return AbstractBuildingPoints(data_source=gdf)
 
 @pytest.fixture
 def vulnerability_func():
     return DefaultFloodFunction()
 
 @pytest.fixture
-def hazard():
-    class MockHazard:
+def flood_depth_grid():
+    class MockFloodDepthGrid:
         def get_intensity(self, x, y):
-            return 5.0  # Mock intensity value for testing
-    return MockHazard()
+            return 5.0  # Return a fixed intensity value for testing
+    return MockFloodDepthGrid()
 
-def test_calculate_risk(buildings, vulnerability_func, hazard):
-    analysis = HazusFloodAnalysis(buildings, vulnerability_func, hazard)
+def test_calculate_risk(buildings, vulnerability_func, flood_depth_grid):
+    analysis = HazusFloodAnalysis(buildings, vulnerability_func, flood_depth_grid)
     result = analysis.calculate_risk()
     
     assert not result.empty
     assert 'hazard_intensity' in result.columns
     assert 'damage' in result.columns
-    assert all(result['hazard_intensity'] == 5.0)  # Mock intensity value
+    # Verify that each record has the mocked hazard intensity value.
+    assert all(result['hazard_intensity'] == 5.0)
+    # Check that damage is calculated as expected from the vulnerability function.
     assert all(result['damage'] == vulnerability_func.calculate_damage(5.0))
