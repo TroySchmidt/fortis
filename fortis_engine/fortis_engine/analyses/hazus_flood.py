@@ -1,5 +1,9 @@
+from fortis_engine.fortis_engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis_engine.fortis_engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
+
+
 class HazusFloodAnalysis:
-    def __init__(self, buildings, vulnerability_func, hazard):
+    def __init__(self, buildings: AbstractBuildingPoints, vulnerability_func, depth_grid: AbstractFloodDepthGrid):
       """
       Initializes a HazusFloodAnalysis object.
 
@@ -10,23 +14,30 @@ class HazusFloodAnalysis:
       """
       self.buildings = buildings
       self.vulnerability_func = vulnerability_func
-      self.hazard = hazard
+      self.depth_grid = depth_grid
 
-    def calculate_risk(self):
+    def calculate_losses(self):
       """
       Calculates risk for each building.
 
       Returns:
           pandas.DataFrame or geopandas.GeoDataFrame: Building data with risk metrics.
       """
-      # Extract building locations
-      self.buildings.data['hazard_intensity'] = self.buildings.data.apply(
-          lambda row: self.hazard.get_intensity(row['geometry'].x, row['geometry'].y), axis=1
-      )
+      # Required fields according to FAST
+      # Area
+      # Building Cost
+      # (Content Cost can be computed if not provided)
+      # First floor height
+      # Foundation Type (according to Hazus but is basically around basement or no)
+      # Lat, Lon, Point geometry
+      # Number of stories
+      # Occupancy class
+
+
+      # Apply the depth grid to the buildings
+      # with on the flood depth grid
+      # gdf["flood_depth"] = gdf["geometry"].apply(lambda pt: flood_depth_grid.get_depth(pt))
+
+      # Apply the vulnerability function to the buildings
 
       # Calculate damage for each building
-      self.buildings.data['damage'] = self.buildings.data['hazard_intensity'].apply(
-          self.vulnerability_func.calculate_damage
-      )
-
-      return self.buildings.data
