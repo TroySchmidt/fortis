@@ -23,6 +23,17 @@ class HazusFloodAnalysis:
       Returns:
           pandas.DataFrame or geopandas.GeoDataFrame: Building data with risk metrics.
       """
+      # Required fields according to FAST
+      # Area
+      # Building Cost
+      # (Content Cost can be computed if not provided)
+      # First floor height
+      # Foundation Type (according to Hazus but is basically around basement or no)
+      # Lat, Lon, Point geometry
+      # Number of stories
+      # Occupancy class
+
+
       # Apply the depth grid to the buildings
       # with on the flood depth grid
       # gdf["flood_depth"] = gdf["geometry"].apply(lambda pt: flood_depth_grid.get_depth(pt))
