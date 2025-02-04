@@ -1,14 +1,14 @@
 StructDmgFnId,ContDmgFnId,InvDmgFnId,Occupancy,Description,HazardR,HazardCA,HazardCV,Basement,StoriesMin,StoriesMax
 106,30,,RES1,"one floor, w/ basement, Structure, A-Zone",0,1,1,1,1,1
-107,,,RES1,"two floors, no basement, Structure, A-Zone",1,1,0,0,2,2
+107,23,,RES1,"two floors, no basement, Structure, A-Zone",1,1,0,0,2,2
 108,24,,RES1,"two floors, w/ basement, Structure, A-Zone",1,1,0,1,2,2
-109,,,RES1,"three or more floors, no basement, Structure, A-Zone",1,1,0,0,3,1000
+109,25,,RES1,"three or more floors, no basement, Structure, A-Zone",1,1,0,0,3,1000
 110,26,,RES1,"three or more floors, w/ basement, Structure, A-Zone",1,1,0,1,3,1000
 111,27,,RES1,"split level, no basement, Structure, A-Zone",1,0,0,0,1,1
 112,28,,RES1,"split level, w/ basement, Structure, A-Zone",1,1,0,1,1,1
-115,,,RES1,"two floors, no basement, Structure, V-Zone",0,0,1,0,2,2
+115,488,,RES1,"two floors, no basement, Structure, V-Zone",0,0,1,0,2,2
 116,32,,RES1,"two floors, w/ basement, Structure, V-Zone",0,0,1,1,2,2
-117,,,RES1,"three or more floors, no basement, Structure, V-Zone",0,0,1,0,3,1000
+117,488,,RES1,"three or more floors, no basement, Structure, V-Zone",0,0,1,0,3,1000
 118,34,,RES1,"three or more floors, w/ basement, Structure, V-Zone",0,0,1,1,3,1000
 120,36,,RES1,"split level, w/ basement, Structure, V-Zone",0,0,1,1,1,1
 129,45,,RES1,"one story, no basement, Structure",1,0,0,0,1,1
@@ -177,7 +177,3 @@ StructDmgFnId,ContDmgFnId,InvDmgFnId,Occupancy,Description,HazardR,HazardCA,Haza
 660,490,,RES3B,"1to2 Stories, slab - no basement, Coastal A or V Zone",0,1,1,0,1,2
 667,497,,RES2,"Manufactured Home (Mobile), Structure, Coastal A or V Zone",0,1,1,0,1,1
 704,535,,RES1,"one story, w/ basement, Structure  (B14)",1,0,0,1,1,1
-,23,,RES1,"two floors, no basement, Structure, A-Zone",1,0,0,0,2,2
-,488,,RES1,"two floors, no basement, Structure, V-Zone",0,1,1,0,2,2
-,25,,RES1,"three or more floors, no basement, Structure, A-Zone",1,0,0,0,3,1000
-,488,,RES1,"three or more floors, no basement, Structure, V-Zone",0,1,1,0,3,1000
