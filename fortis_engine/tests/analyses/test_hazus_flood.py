@@ -6,42 +6,9 @@ from fortis_engine.analyses.hazus_flood import HazusFloodAnalysis
 from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
 from fortis_engine.vulnerability.default_flood import DefaultFloodFunction
 
-class DummyBuildingPoints(AbstractBuildingPoints):
-    def __init__(self, gdf: gpd.GeoDataFrame):
-        self._gdf = gdf
-
-    @property
-    def gdf(self) -> gpd.GeoDataFrame:
-        return self._gdf
-
-@pytest.fixture
-def buildings():
-    # Hardcoded data
-    data = [
-        {'FltyId': 1, 'HNL_UDF_EQ': 'RM1M', 'Occ': 'RES3E', 'Cost': 2254898, 'NumStories': 7, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 11040, 'ContentCost': 1127449, 'BldgDamageFnID': 204, 'CDDF_ID': 81, 'YEARBUILT': 1974, 'Tract': 15003000106, 'Latitude': 21.29, 'Longitude': -157.72, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R3E5N', 'ContentCostUSD': 1127449, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 31.0, 'BldgLossUSD': 699018.38, 'CDDF_ID.1': 81, 'ContDmgPct': 41.0, 'ContentLossUSD': 462254.09, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES3ENBSG4', 'Debris_Fin': 75.072, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 75.072, 'Restor_Days_Min': 360, 'Restor_Days_Max': 540, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53611, 'HNL_UDF_EQ': 'PC1', 'Occ': 'IND2', 'Cost': 1484865, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 11724, 'ContentCost': 2227298, 'BldgDamageFnID': 559, 'CDDF_ID': 384, 'YEARBUILT': 1988, 'Tract': 15003010000, 'Latitude': 21.59, 'Longitude': -158.1, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'I2LN', 'ContentCostUSD': 2227298, 'InventoryCostUSD': 105984.96, 'BldgDmgPct': 26.0, 'BldgLossUSD': 386064.9, 'CDDF_ID.1': 384, 'ContDmgPct': 52.0, 'ContentLossUSD': 1158194.96, 'IDDF_ID': 81, 'InvDmgPct': 63.0, 'InventoryLossUSD': 66770.5248, 'DebrisID': 'IND2NBSG4', 'Debris_Fin': 8.2068, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 8.2068, 'Restor_Days_Min': 30, 'Restor_Days_Max': 150, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53618, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 597165, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 3438, 'ContentCost': 298582, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1961, 'Tract': 15003010000, 'Latitude': 21.56, 'Longitude': -158.11, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 298582, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 274695.9, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 119432.8, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 23.3784, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 23.3784, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53617, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 628604, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 3619, 'ContentCost': 314302, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1963, 'Tract': 15003010000, 'Latitude': 21.56, 'Longitude': -158.11, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 314302, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 289157.84, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 125720.8, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 24.6092, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 24.6092, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53616, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 777982, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 4479, 'ContentCost': 388991, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1971, 'Tract': 15003010000, 'Latitude': 21.56, 'Longitude': -158.11, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 388991, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 357871.72000000003, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 155596.4, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 30.4572, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 30.4572, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53615, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 366324, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 2109, 'ContentCost': 183162, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1955, 'Tract': 15003010000, 'Latitude': 21.59, 'Longitude': -158.1, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 183162, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 168509.04, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 73264.8, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 14.3412, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 14.3412, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53614, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 239526, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 1379, 'ContentCost': 119763, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1941, 'Tract': 15003010000, 'Latitude': 21.62, 'Longitude': -158.09, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 119763, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 110181.96, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 47905.2, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 9.377199999999998, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 9.377199999999998, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53613, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 285208, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 1642, 'ContentCost': 142604, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1930, 'Tract': 15003010000, 'Latitude': 21.62, 'Longitude': -158.08, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 142604, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 131195.68, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 57041.600000000006, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 11.1656, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 11.1656, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-        {'FltyId': 53612, 'HNL_UDF_EQ': 'W1', 'Occ': 'RES1', 'Cost': 61141, 'NumStories': 1, 'FoundationType': 7, 'FirstFloorHt': 1, 'Area': 352, 'ContentCost': 30570, 'BldgDamageFnID': 213, 'CDDF_ID': 29, 'YEARBUILT': 1949, 'Tract': 15003010000, 'Latitude': 21.62, 'Longitude': -158.08, 'Depth_Grid': 6.0, 'Depth_in_Struc': 5.0, 'flExp': 1, 'SOID': 'R11N', 'ContentCostUSD': 30570, 'InventoryCostUSD': 0.0, 'BldgDmgPct': 46.0, 'BldgLossUSD': 28124.86, 'CDDF_ID.1': 29, 'ContDmgPct': 40.0, 'ContentLossUSD': 12228.0, 'IDDF_ID': 0, 'InvDmgPct': 0.0, 'InventoryLossUSD': 0.0, 'DebrisID': 'RES1NBSG4', 'Debris_Fin': 2.3936, 'Debris_Struc': 0.0, 'Debris_Found': 0.0, 'Debris_Tot': 2.3936, 'Restor_Days_Min': 270, 'Restor_Days_Max': 450, 'GridName': 'Honolulu_6_Foot2'},
-    ]
-
-    # Convert the list of dictionaries to a new DataFrame
-    df_hardcoded = pd.DataFrame(data)
-
-    # Create a geometry column from Latitude and Longitude
-    df_hardcoded['geometry'] = df_hardcoded.apply(lambda row: Point(row['Longitude'], row['Latitude']), axis=1)
-
-    # Create a GeoDataFrame with the hardcoded data
-    gdf_hardcoded = gpd.GeoDataFrame(df_hardcoded, geometry='geometry', crs='EPSG:4326')
-    return DummyBuildingPoints(gdf=gdf_hardcoded)
-
 @pytest.fixture
 def vulnerability_func():
-    return DefaultFloodFunction('RISK-UE', buildings, 'CV')
+    return DefaultFloodFunction('CV')
 
 @pytest.fixture
 def flood_depth_grid():
@@ -50,8 +17,8 @@ def flood_depth_grid():
             return 6.0  # Return a fixed intensity value for testing
     return MockFloodDepthGrid()
 
-def test_calculate_losses(buildings, vulnerability_func, flood_depth_grid):
-    analysis = HazusFloodAnalysis(buildings, vulnerability_func, flood_depth_grid)
+def test_calculate_losses(small_udf_buildings, vulnerability_func, flood_depth_grid):
+    analysis = HazusFloodAnalysis(small_udf_buildings, vulnerability_func, flood_depth_grid)
     result = analysis.calculate_losses()
     
     assert not result.empty
