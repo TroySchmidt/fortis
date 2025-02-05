@@ -37,15 +37,16 @@ class BasicFloodAnalysis:
       # Occupancy class
 
       gdf: gpd.GeoDataFrame = self.buildings.gdf
+      fields = self.buildings.fields
 
       # Apply the depth grid to the buildings
-      gdf.apply(lambda pt: self.depth_grid.get_depth(pt))
+      gdf[fields.FloodDepth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 
       # Apply the vulnerability function to the buildings
       self.vulnerability_func.apply_damage_percentages(self.buildings)
 
       # TODO: Update the strings to use FieldNames class object on each of the classes that uses pandas
       # so then we can override them but have a defined contract.
-      
+
       # Compute the loss
-      gdf["BldgLossUSD"] = gdf["BldgDmgPct"] * gdf["BldgCost"]
+      gdf[fields.BldgLoss] = gdf[fields.BldgDmgPct] * gdf[fields.BldgCost]

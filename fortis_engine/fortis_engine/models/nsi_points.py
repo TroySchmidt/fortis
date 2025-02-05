@@ -11,6 +11,8 @@ class NSIPoints(AbstractBuildingPoints):
         Args:
             zip_path (str): Full path to the zip file containing the gpkg.
         """
+       
+        
         self.zip_path = zip_path
         self._gdf = self._extract_and_load(zip_path)
 
