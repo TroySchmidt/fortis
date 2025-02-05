@@ -3,12 +3,24 @@ from abc import ABC, abstractmethod
 
 from fortis_engine.fortis_engine.models.field_names import FieldNames
 
+""" 
+Foundation Types:
+C: Crawl (5)
+B: Basement (4)
+S: Slab (7)
+P: Pier (2)
+I: Pile (1)
+F: Fill (6)
+W: Solid Wall (3)
+"""
+
 class AbstractBuildingPoints(ABC):
     def __init__(self):
         default_fields = {
             "ID": "ID",
             "OccupancyType": "OccupancyType",
             "FirstFloorHt": "FirstFloorHt",
+            "FoundationType": "FoundationType",
             "NumStories": "NumStories",
             "FloodDepth": "FloodDepth",
             "BldgCost": "Cost",
