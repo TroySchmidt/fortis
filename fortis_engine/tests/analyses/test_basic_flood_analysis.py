@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 import geopandas as gpd
 from fortis_engine.analyses.basic_flood_analysis import BasicFloodAnalysis
 from fortis_engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
@@ -10,11 +11,18 @@ class DummyFloodDepthGrid:
         # For testing, simply return a dummy value (or leave unimplemented if not needed).
         return 6.0
 
+    def get_depth_vectorized(self, geometry):
+        """
+        Returns an array of constant depth values (6.0) with the same length as the
+        provided GeoSeries (geometry).
+        """
+        return np.full(len(geometry), 6.0)
+
 class DummyVulnerabilityFunction(AbstractVulnerabilityFunction):
     def apply_damage_percentages(self, building_points: AbstractBuildingPoints) -> None:
         gdf: gpd.GeoDataFrame = building_points.gdf
         # For testing, force a constant damage percentage of 0.2 for every building.
-        gdf["BldgDmgPct"] = 0.2
+        gdf[building_points.fields.BldgDmgPct] = 0.2
 
 # We assume conftest.py already defines small_udf_buildings;
 # Here we override or add a BldgCost column.
