@@ -1,4 +1,4 @@
-from fortis_engine.fortis_engine.models.flood_depth_grid import FloodDepthGrid
+from fortis_engine.models.flood_depth_grid import FloodDepthGrid
 import rasterio
 
 class DummyDataset:

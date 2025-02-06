@@ -8,7 +8,7 @@ Clone repo from bash prompt
 Test Explorer UI `uv venv` to create the virtual environment for the monorepo
 Navigate to fortis_engine subfolder.  Run `uv pip install -e .[dev]` to install the required and development dependencies.
 `uv build` to test that the fortis_engine folder can be built.
-`uv run pytest tests/` to make sure the tests can run.
+`uv run pytest fortis_engine/tests/` to make sure the tests can run.
 
 Activate environment
 `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`

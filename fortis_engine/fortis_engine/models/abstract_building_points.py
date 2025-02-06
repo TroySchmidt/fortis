@@ -1,7 +1,7 @@
 import geopandas as gpd
 from abc import ABC, abstractmethod
 
-from fortis_engine.fortis_engine.models.field_names import FieldNames
+from fortis_engine.models.field_names import FieldNames
 
 """ 
 Foundation Types:

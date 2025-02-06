@@ -1,7 +1,7 @@
 import pandas as pd
 import geopandas as gpd
-from fortis_engine.fortis_engine.models.abstract_building_points import AbstractBuildingPoints
-from fortis_engine.fortis_engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
+from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis_engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
 
 try:
     # Python 3.9+
@@ -24,7 +24,7 @@ class HazusFloodAnalysis:
       self.vulnerability_func = vulnerability_func
       self.depth_grid = depth_grid
 
-      with resources.open_text("fortis_data.data", "flDebris.csv") as debris_file:
+      with resources.files("fortis_data.data").joinpath("flDebris.csv").open("r") as debris_file:
             self.debris = pd.read_csv(debris_file)
 
     def calculate_losses(self):
@@ -54,7 +54,8 @@ class HazusFloodAnalysis:
       gdf[fields.DepthInStructure] = gdf[fields.FloodDepth] - gdf[fields.FirstFloorHeight]
 
       # Apply the vulnerability function to the buildings
-
+      self.vulnerability_func.collect_damage_percentages()
+      
       # Do the loss calculations
       gdf[fields.BldgLoss] = gdf[fields.BldgDmgPct] * gdf[fields.BldgCost]
       gdf[fields.ContentLoss] = gdf[fields.ContDmgPct] * gdf[fields.ContentCost]

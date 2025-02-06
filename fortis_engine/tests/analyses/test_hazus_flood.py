@@ -7,8 +7,8 @@ from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
 from fortis_engine.vulnerability.default_flood import DefaultFloodFunction
 
 @pytest.fixture
-def vulnerability_func():
-    return DefaultFloodFunction('CV')
+def vulnerability_func(small_udf_buildings):
+    return DefaultFloodFunction(buildings=small_udf_buildings, vulnerability_func=None, flood_type='CV')
 
 @pytest.fixture
 def flood_depth_grid():
