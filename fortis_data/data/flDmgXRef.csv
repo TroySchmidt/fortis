@@ -1,4 +1,4 @@
-StructDmgFnId,ContDmgFnId,InvDmgFnId,Occupancy,Description,HazardR,HazardCA,HazardCV,Basement,StoriesMin,StoriesMax
+BldgDmgFnId,ContDmgFnId,InvDmgFnId,Occupancy,Description,HazardR,HazardCA,HazardCV,Basement,StoriesMin,StoriesMax
 106,30,,RES1,"one floor, w/ basement, Structure, A-Zone",0,1,1,1,1,1
 107,23,,RES1,"two floors, no basement, Structure, A-Zone",1,1,0,0,2,2
 108,24,,RES1,"two floors, w/ basement, Structure, A-Zone",1,1,0,1,2,2
