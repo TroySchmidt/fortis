@@ -30,7 +30,7 @@ class DummyVulnerabilityFunction(AbstractVulnerabilityFunction):
 def building_points(small_udf_buildings):
     gdf = small_udf_buildings.gdf.copy()
     # Set a constant building cost for each row for testing:
-    gdf["BldgCost"] = 100000  
+    gdf["BldgCost"] = 100_000  
     # Update the underlying GeoDataFrame in our dummy building points.
     small_udf_buildings._gdf = gdf
     return small_udf_buildings
@@ -46,5 +46,5 @@ def test_calculate_losses(basic_flood_analysis, building_points):
     gdf = building_points.gdf
     # With DummyVulnerabilityFunction, BldgDmgPct is set to 0.2.
     # With BldgCost = 100000, we expect:
-    expected_loss = 0.2 * 100000  # = 20000
+    expected_loss = 0.2 * 100_000
     assert (gdf["BldgLossUSD"] == expected_loss).all()
