@@ -17,24 +17,31 @@ W: Solid Wall (3)
 class AbstractBuildingPoints(ABC):
     def __init__(self):
         default_fields = {
+            # These first fields are required on the input data
             "ID": "ID",
             "OccupancyType": "OccupancyType",
             "FirstFloorHt": "FirstFloorHt",
             "FoundationType": "FoundationType",
             "NumStories": "NumStories",
-            "FloodDepth": "FloodDepth",
+            "Area": "Area",
             "BldgCost": "Cost",
-            "BDDF_ID": "BDDF_ID",
+            "ContentCost": "ContentCostUSD",
+            "InventoryCost": "InventoryCostUSD",
+            # These can be added if missing below this line
+            "FloodDepth": "FloodDepth",
+            "BDDF_ID": "BDDF_ID", 
             "BldgDmgPct": "BldgDmgPct",
             "BldgLoss": "BldgLossUSD",
-            "ContentCost": "ContentCostUSD",
             "CDDF_ID": "CDDF_ID",
             "ContDmgPct": "ContDmgPct",
             "ContentLoss": "ContentLossUSD",
-            "InventoryCost": "InventoryCostUSD",
             "IDDF_ID": "IDDF_ID",
             "InvDmgPct": "InvDmgPct",
             "InventoryLoss": "InventoryLossUSD",
+            "DebrisFinish": "DebrisFinish",
+            "DebrisFoundatioin": "DebrisFoundation",
+            "DebrisStructure": "DebrisStructure",
+            "DebrisTotal": "DebrisTotal",
         }
         self.fields = FieldNames(default_fields)
 
