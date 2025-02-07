@@ -24,9 +24,9 @@ class HazusFloodAnalysis:
       self.vulnerability_func = vulnerability_func
       self.depth_grid = depth_grid
 
-      with resources.files("fortis_data.data").joinpath("flDebris.csv").open("r") as debris_file:
+      with resources.files("fortis_data.data").joinpath("flDebris.csv").open("r", encoding="utf-8-sig") as debris_file:
             self.debris = pd.read_csv(debris_file)
-      with resources.open_text("fortis_data.data", "flRsFnGBS.csv") as restoration_file:
+      with resources.files("fortis_data.data").joinpath("flRsFnGBS.csv").open("r", encoding="utf-8-sig") as restoration_file:
             self.restoration = pd.read_csv(restoration_file)
 
     def calculate_losses(self):
@@ -56,7 +56,7 @@ class HazusFloodAnalysis:
       gdf[fields.DepthInStructure] = gdf[fields.FloodDepth] - gdf[fields.FirstFloorHeight]
 
       # Apply the vulnerability function to the buildings
-      self.vulnerability_func.collect_damage_percentages()
+      self.vulnerability_func.apply_damage_percentages()
       
       # Do the loss calculations
       gdf[fields.BldgLoss] = gdf[fields.BldgDmgPct] * gdf[fields.BldgCost]
