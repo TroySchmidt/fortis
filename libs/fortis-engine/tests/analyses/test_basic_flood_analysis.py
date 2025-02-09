@@ -30,7 +30,7 @@ class DummyVulnerabilityFunction(AbstractVulnerabilityFunction):
 def building_points(small_udf_buildings):
     gdf = small_udf_buildings.gdf.copy()
     # Set a constant building cost for each row for testing:
-    gdf["BldgCost"] = 100_000  
+    gdf[small_udf_buildings.fields.BldgCost] = 100_000  
     # Update the underlying GeoDataFrame in our dummy building points.
     small_udf_buildings._gdf = gdf
     return small_udf_buildings
