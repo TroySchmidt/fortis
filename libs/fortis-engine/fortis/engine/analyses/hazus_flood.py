@@ -53,7 +53,7 @@ class HazusFloodAnalysis:
       gdf[fields.FloodDepth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 
       # From the flooded depth based on other attributes determine the depth in structure.
-      gdf[fields.DepthInStructure] = gdf[fields.FloodDepth] - gdf[fields.FirstFloorHeight]
+      gdf[fields.DepthInStructure] = gdf[fields.FloodDepth] - gdf[fields.FirstFloorHt]
 
       # Apply the vulnerability function to the buildings
       self.vulnerability_func.apply_damage_percentages()
@@ -64,7 +64,7 @@ class HazusFloodAnalysis:
       gdf[fields.InventoryLoss] = gdf[fields.InvDmgPct] * gdf[fields.InventoryCost]
 
       # Debris
-      weights = gdf.apply(lambda row: self.lookup_debris_weights(row[fields.FloodDepth], row[fields.OccupancyType]), axis=1)
+      weights = gdf.apply(lambda row: self.lookup_debris_weights(row[fields.FloodDepth], row[fields.OccupancyType], row[fields.FoundationType]), axis=1)
       # Append the new columns
       gdf = gdf.join(weights)
 
