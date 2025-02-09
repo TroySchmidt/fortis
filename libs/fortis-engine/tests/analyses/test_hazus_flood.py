@@ -2,9 +2,9 @@ import pytest
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-from fortis_engine.analyses.hazus_flood import HazusFloodAnalysis
-from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
-from fortis_engine.vulnerability.default_flood import DefaultFloodFunction
+from fortis.engine.analyses.hazus_flood import HazusFloodAnalysis
+from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis.engine.vulnerability.default_flood import DefaultFloodFunction
 
 @pytest.fixture
 def vulnerability_func(small_udf_buildings):

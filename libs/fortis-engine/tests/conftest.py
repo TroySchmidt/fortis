@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
 
 class DummyBuildingPoints(AbstractBuildingPoints):
     def __init__(self, gdf: gpd.GeoDataFrame):

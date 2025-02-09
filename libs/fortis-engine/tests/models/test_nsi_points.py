@@ -1,7 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
-from fortis_engine.models.nsi_points import NSIPoints
+from fortis.engine.models.nsi_points import NSIPoints
 
 def dummy_extract_and_load(self, zip_path: str) -> gpd.GeoDataFrame:
     # Create a dummy GeoDataFrame instead of extracting from a zip.

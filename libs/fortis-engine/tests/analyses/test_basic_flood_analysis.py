@@ -1,9 +1,9 @@
 import pytest
 import numpy as np
 import geopandas as gpd
-from fortis_engine.analyses.basic_flood_analysis import BasicFloodAnalysis
-from fortis_engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
-from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis.engine.analyses.basic_flood_analysis import BasicFloodAnalysis
+from fortis.engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
+from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
 
 
 class DummyFloodDepthGrid:

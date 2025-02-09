@@ -1,7 +1,7 @@
 import geopandas as gpd
-from fortis_engine.models.abstract_building_points import AbstractBuildingPoints
-from fortis_engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
-from fortis_engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
+from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
+from fortis.engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
+from fortis.engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
 
 class BasicFloodAnalysis:
     def __init__(self, buildings: AbstractBuildingPoints, vulnerability_func: AbstractVulnerabilityFunction, depth_grid: AbstractFloodDepthGrid):

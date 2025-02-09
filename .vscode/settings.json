@@ -1,5 +1,6 @@
 {
     "python.testing.pytestArgs": [
+        "--no-cov",
         "."
     ],
     "python.testing.unittestEnabled": false,
