@@ -40,7 +40,7 @@ class BasicFloodAnalysis:
       fields = self.buildings.fields
 
       # Apply the depth grid to the buildings
-      gdf[fields.FloodDepth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
+      gdf[fields.flood_depth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 
       # Apply the vulnerability function to the buildings
       self.vulnerability_func.apply_damage_percentages(self.buildings)
@@ -49,4 +49,4 @@ class BasicFloodAnalysis:
       # so then we can override them but have a defined contract.
 
       # Compute the loss
-      gdf[fields.BldgLoss] = gdf[fields.BldgDmgPct] * gdf[fields.BldgCost]
+      gdf[fields.building_loss] = gdf[fields.building_damage_percent] * gdf[fields.building_cost]

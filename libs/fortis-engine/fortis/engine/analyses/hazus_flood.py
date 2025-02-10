@@ -50,32 +50,32 @@ class HazusFloodAnalysis:
       fields = self.buildings.fields
 
       # Apply the depth grid to the buildings
-      gdf[fields.FloodDepth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
+      gdf[fields.flood_depth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 
       # From the flooded depth based on other attributes determine the depth in structure.
-      gdf[fields.DepthInStructure] = gdf[fields.FloodDepth] - gdf[fields.FirstFloorHt]
+      gdf[fields.depth_in_structure] = gdf[fields.flood_depth] - gdf[fields.first_floor_height]
 
       # Apply the vulnerability function to the buildings
       self.vulnerability_func.apply_damage_percentages()
       
       # Do the loss calculations
-      gdf[fields.BldgLoss] = gdf[fields.BldgDmgPct] * gdf[fields.BldgCost]
-      gdf[fields.ContentLoss] = gdf[fields.ContDmgPct] * gdf[fields.ContentCost]
-      gdf[fields.InventoryLoss] = gdf[fields.InvDmgPct] * gdf[fields.InventoryCost]
+      gdf[fields.building_loss] = gdf[fields.building_damage_percent] * gdf[fields.building_cost]
+      gdf[fields.content_loss] = gdf[fields.content_damage_percent] * gdf[fields.content_cost]
+      gdf[fields.inventory_loss] = gdf[fields.inventory_damage_percent] * gdf[fields.inventory_cost]
 
       # Debris
-      weights = gdf.apply(lambda row: self.lookup_debris_weights(row[fields.FloodDepth], row[fields.OccupancyType], row[fields.FoundationType]), axis=1)
+      weights = gdf.apply(lambda row: self.lookup_debris_weights(row[fields.flood_depth], row[fields.occupancy_type], row[fields.foundation_type]), axis=1)
       # Append the new columns
       gdf = gdf.join(weights)
 
       # Calculate the debris based on the weights
-      gdf[fields.DebrisFinish] = gdf[fields.Area] * gdf['FinishWt'] / 1000   
-      gdf[fields.DebrisFoundation] = gdf[fields.Area] * gdf['FoundationWt'] / 1000
-      gdf[fields.DebrisStructure] = gdf[fields.Area] * gdf['StructureWt'] / 1000
-      gdf[fields.DebrisTotal] = gdf[fields.DebrisFinish] + gdf[fields.DebrisFoundation] + gdf[fields.DebrisStructure]
+      gdf[fields.debris_finish] = gdf[fields.area] * gdf['FinishWt'] / 1000   
+      gdf[fields.debris_foundation] = gdf[fields.area] * gdf['FoundationWt'] / 1000
+      gdf[fields.debris_structure] = gdf[fields.area] * gdf['StructureWt'] / 1000
+      gdf[fields.debris_total] = gdf[fields.debris_finish] + gdf[fields.debris_foundation] + gdf[fields.debris_structure]
 
       # Restoration Time
-      restoration = gdf.apply(lambda row: self.lookup_restoration_time(row[fields.FloodDepth], row[fields.OccupancyType]), axis=1)
+      restoration = gdf.apply(lambda row: self.lookup_restoration_time(row[fields.flood_depth], row[fields.occupancy_type]), axis=1)
       gdf = gdf.join(restoration)
 
     def lookup_debris_weights(self, flood_depth, occupancy, foundation_type):

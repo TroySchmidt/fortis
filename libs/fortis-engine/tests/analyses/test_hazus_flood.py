@@ -28,8 +28,8 @@ def test_calculate_losses(small_udf_buildings, vulnerability_func, flood_depth_g
     result = small_udf_buildings.gdf
 
     assert not result.empty
-    assert small_udf_buildings.fields.BldgLoss in result.columns
+    assert small_udf_buildings.fields.building_loss in result.columns
     # Verify that each record has the mocked hazard intensity value.
-    assert all(result[small_udf_buildings.fields.FloodDepth] > 0.0)
+    assert all(result[small_udf_buildings.fields.flood_depth] > 0.0)
     # Check that damage is calculated as expected from the vulnerability function.
-    assert all(result[small_udf_buildings.fields.BldgLoss] > 1.0)
+    assert all(result[small_udf_buildings.fields.building_loss] > 1.0)
