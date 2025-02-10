@@ -1,6 +1,7 @@
 from typing import Dict
 from fortis.engine.models.field_mapping import FieldMapping
 
+
 class BuildingMapping(FieldMapping["BuildingMapping"]):
     """
     Mapping class for person-related data.
@@ -8,6 +9,7 @@ class BuildingMapping(FieldMapping["BuildingMapping"]):
     Default values for internal field names are defined during initialization.
     The properties simply fetch values from the internal mapping dictionary.
     """
+
     def __init__(self, overrides: Dict[str, str] = None) -> None:
         # Define default internal values.
         defaults = {
@@ -23,7 +25,7 @@ class BuildingMapping(FieldMapping["BuildingMapping"]):
             # These can be added if missing below this line
             "flood_depth": "FloodDepth",
             "depth_in_structure": "DepthInStructure",
-            "bddf_id": "BDDF_ID", 
+            "bddf_id": "BDDF_ID",
             "building_damage_percent": "BldgDmgPct",
             "building_loss": "BldgLossUSD",
             "cddf_id": "CDDF_ID",
@@ -39,19 +41,19 @@ class BuildingMapping(FieldMapping["BuildingMapping"]):
         }
         # Initialize the base FieldMapping with defaults and any provided overrides.
         super().__init__(defaults=defaults, overrides=overrides)
-    
+
     @property
     def id(self) -> str:
         return self.get_value("id")
-    
+
     @property
     def occupancy_type(self) -> str:
         return self.get_value("occupancy_type")
-    
+
     @property
     def first_floor_height(self) -> str:
         return self.get_value("first_floor_height")
-    
+
     @property
     def foundation_type(self) -> str:
         return self.get_value("foundation_type")

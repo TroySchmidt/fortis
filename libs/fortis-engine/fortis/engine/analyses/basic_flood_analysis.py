@@ -1,52 +1,62 @@
 import geopandas as gpd
 from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
 from fortis.engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
-from fortis.engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
+from fortis.engine.vulnerability.abstract_vulnerability_function import (
+    AbstractVulnerabilityFunction,
+)
+
 
 class BasicFloodAnalysis:
-    def __init__(self, buildings: AbstractBuildingPoints, vulnerability_func: AbstractVulnerabilityFunction, depth_grid: AbstractFloodDepthGrid):
-      """
-      Initializes a HazusFloodAnalysis object.
+    def __init__(
+        self,
+        buildings: AbstractBuildingPoints,
+        vulnerability_func: AbstractVulnerabilityFunction,
+        depth_grid: AbstractFloodDepthGrid,
+    ):
+        """
+        Initializes a HazusFloodAnalysis object.
 
-      Args:
-          buildings (BuildingPoints): BuildingPoints object.
-          vulnerability_func (VulnerabilityFunction): VulnerabilityFunction object.
-          hazard (Hazard): Hazard object.
-      """
-      self.buildings = buildings
-      self.vulnerability_func = vulnerability_func
-      self.depth_grid = depth_grid
+        Args:
+            buildings (BuildingPoints): BuildingPoints object.
+            vulnerability_func (VulnerabilityFunction): VulnerabilityFunction object.
+            hazard (Hazard): Hazard object.
+        """
+        self.buildings = buildings
+        self.vulnerability_func = vulnerability_func
+        self.depth_grid = depth_grid
 
     def calculate_losses(self):
-      """
-      Calculates risk for each building.
+        """
+        Calculates risk for each building.
 
-      Exposure * Hazard * Vulnerability = Loss
+        Exposure * Hazard * Vulnerability = Loss
 
-      Returns:
-          pandas.DataFrame or geopandas.GeoDataFrame: Building data with risk metrics.
-      """
-      # Required fields according to FAST
-      # Area
-      # Building Cost
-      # (Content Cost can be computed if not provided)
-      # First floor height
-      # Foundation Type (according to Hazus but is basically around basement or no)
-      # Lat, Lon, Point geometry
-      # Number of stories
-      # Occupancy class
+        Returns:
+            pandas.DataFrame or geopandas.GeoDataFrame: Building data with risk metrics.
+        """
+        # Required fields according to FAST
+        # Area
+        # Building Cost
+        # (Content Cost can be computed if not provided)
+        # First floor height
+        # Foundation Type (according to Hazus but is basically around basement or no)
+        # Lat, Lon, Point geometry
+        # Number of stories
+        # Occupancy class
 
-      gdf: gpd.GeoDataFrame = self.buildings.gdf
-      fields = self.buildings.fields
+        gdf: gpd.GeoDataFrame = self.buildings.gdf
+        fields = self.buildings.fields
 
-      # Apply the depth grid to the buildings
-      gdf[fields.flood_depth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
+        # Apply the depth grid to the buildings
+        gdf[fields.flood_depth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 
-      # Apply the vulnerability function to the buildings
-      self.vulnerability_func.apply_damage_percentages(self.buildings)
+        # Apply the vulnerability function to the buildings
+        self.vulnerability_func.apply_damage_percentages(self.buildings)
 
-      # TODO: Update the strings to use FieldNames class object on each of the classes that uses pandas
-      # so then we can override them but have a defined contract.
+        # TODO: Update the strings to use FieldNames class object on each of the classes that uses pandas
+        # so then we can override them but have a defined contract.
 
-      # Compute the loss
-      gdf[fields.building_loss] = gdf[fields.building_damage_percent] * gdf[fields.building_cost]
+        # Compute the loss
+        gdf[fields.building_loss] = (
+            gdf[fields.building_damage_percent] * gdf[fields.building_cost]
+        )

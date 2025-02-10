@@ -2,6 +2,7 @@ import numpy as np
 import geopandas as gpd
 from abc import ABC, abstractmethod
 
+
 class AbstractFloodDepthGrid(ABC):
     @abstractmethod
     def get_depth(self, lon: float, lat: float) -> float:

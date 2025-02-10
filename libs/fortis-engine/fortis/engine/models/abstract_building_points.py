@@ -13,6 +13,7 @@ F: Fill (6)
 W: Solid Wall (3)
 """
 
+
 class AbstractBuildingPoints(ABC):
     def __init__(self):
         self.fields = BuildingMapping()

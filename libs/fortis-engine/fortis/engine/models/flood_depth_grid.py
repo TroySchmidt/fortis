@@ -2,6 +2,7 @@ import numpy as np
 import rasterio
 from .abstract_flood_depth_grid import AbstractFloodDepthGrid
 
+
 class FloodDepthGrid(AbstractFloodDepthGrid):
     def __init__(self, data_source: str):
         """
@@ -45,7 +46,7 @@ class FloodDepthGrid(AbstractFloodDepthGrid):
         samples = list(self.data.sample(coords))
         # Return the first band value for each sampled point as a NumPy array
         return np.array([sample[0] for sample in samples])
-    
+
     def close(self):
         """Closes the raster dataset."""
         self.data.close()
