@@ -2,6 +2,7 @@ import pandas as pd
 import geopandas as gpd
 from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
 from fortis.engine.models.abstract_flood_depth_grid import AbstractFloodDepthGrid
+from fortis.engine.vulnerability.abstract_vulnerability_function import AbstractVulnerabilityFunction
 
 try:
     # Python 3.9+
@@ -15,7 +16,7 @@ class HazusFloodAnalysis:
     def __init__(
         self,
         buildings: AbstractBuildingPoints,
-        vulnerability_func,
+        vulnerability_func: AbstractVulnerabilityFunction,
         depth_grid: AbstractFloodDepthGrid,
     ):
         """

@@ -3,7 +3,7 @@ import pandas as pd
 import rasterio
 from fortis.engine.analyses.hazus_flood import HazusFloodAnalysis
 from fortis.engine.models.flood_depth_grid import FloodDepthGrid
-from fortis.engine.vulnerability import DefaultFloodFunction
+from fortis.engine.vulnerability.default_flood import DefaultFloodFunction
 from fortis.engine.models.fast_buildings import FastBuildings
 
 def run_fast():
@@ -20,14 +20,14 @@ def run_fast():
     depth_grid = FloodDepthGrid(tif_file)
 
     # Create an instance of the default flood function
-    flood_function = DefaultFloodFunction()
+    flood_function = DefaultFloodFunction(buildings, flood_type="R")
 
     # Create the Hazus flood analyzer instance.
     # (Assumes that HazusFloodAnalyzer accepts buildings DataFrame, depth grid, the flood function,
     # and geospatial metadata like transform and crs.)
     analyzer = HazusFloodAnalysis(
         buildings=buildings,
-        flood_function=flood_function,
+        vulnerability_func=flood_function,
         depth_grid=depth_grid,
     )
 
