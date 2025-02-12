@@ -43,11 +43,10 @@ def test_calculate_losses(small_udf_buildings, vulnerability_func, flood_depth_g
     # Check that damage is calculated as expected from the vulnerability function.
     assert all(result[small_udf_buildings.fields.building_loss] > 1.0)
 
-@pytest.mark.skipif(
-    not os.path.exists(os.path.join(os.path.dirname(__file__), '../../../../examples/HI_Honolulu_UDF_sample.csv')),
-    reason="Example CSV file not found."
-)
 def test_calculate_losses_with_example_files():
+    example_csv_path = os.path.join(os.path.dirname(__file__), '../../../../examples/HI_Honolulu_UDF_sample.csv')
+    if not os.path.exists(example_csv_path):
+        pytest.skip("Example CSV file not found.")
     # Construct paths relative to the repository root.
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../examples'))
     csv_file = os.path.join(base_dir, "HI_Honolulu_UDF_sample.csv")
@@ -55,11 +54,12 @@ def test_calculate_losses_with_example_files():
     
     # Load buildings from the CSV file (FastBuildings handles relative vs absolute paths)
     buildings = FastBuildings(csv_file)
-    buildings._gdf = buildings.gdf.head(10)
+    #buildings._gdf = buildings.gdf.head(10)
 
     # Create a FloodDepthGrid from the depth grid TIFF file.
     depth_grid = FloodDepthGrid(tif_file)
-    
+    buildings.gdf[buildings.fields.flood_depth] = depth_grid.get_depth_vectorized(buildings.gdf.geometry) - buildings.gdf[buildings.fields.first_floor_height]
+
     # Use the DefaultFloodFunction with, for example, flood type "R"
     flood_function = DefaultFloodFunction(buildings, flood_type="R")
     
@@ -71,6 +71,8 @@ def test_calculate_losses_with_example_files():
     )
     analyzer.calculate_losses()
     
+    buildings.gdf.to_csv("C:/temp/flood_losses.csv", index=False)
+
     # Verify that the analysis was executed: the resulting GeoDataFrame is not empty,
     # and expected columns (e.g., flood_depth and building_loss) exist.
     result = buildings.gdf

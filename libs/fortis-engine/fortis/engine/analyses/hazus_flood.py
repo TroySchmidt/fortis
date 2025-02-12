@@ -77,15 +77,25 @@ class HazusFloodAnalysis:
 
         # Do the loss calculations
         gdf[fields.building_loss] = (
-            gdf[fields.building_damage_percent] * gdf[fields.building_cost]
+            gdf[fields.building_damage_percent] / 100.0 * gdf[fields.building_cost]
         )
         gdf[fields.content_loss] = (
-            gdf[fields.content_damage_percent] * gdf[fields.content_cost]
-        )
-        gdf[fields.inventory_loss] = (
-            gdf[fields.inventory_damage_percent] * gdf[fields.inventory_cost]
+            gdf[fields.content_damage_percent] / 100.0 * gdf[fields.content_cost]
         )
 
+        # Using an inline conditional to get a column or supply a default Series:
+        inventory_cost_series = (
+            gdf[fields.inventory_cost]
+            if fields.inventory_cost in gdf.columns
+            else pd.Series(0, index=gdf.index)
+        )
+
+        if fields.inventory_damage_percent in gdf.columns:
+            gdf[fields.inventory_loss] = (
+                gdf[fields.inventory_damage_percent] / 100.0 * inventory_cost_series
+            )
+
+        """
         # Debris
         weights = gdf.apply(
             lambda row: self.lookup_debris_weights(
@@ -116,6 +126,7 @@ class HazusFloodAnalysis:
             axis=1,
         )
         gdf = gdf.join(restoration)
+        """
 
     def lookup_debris_weights(self, flood_depth, occupancy, foundation_type):
         """
