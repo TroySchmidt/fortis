@@ -38,6 +38,8 @@ class BuildingMapping(FieldMapping["BuildingMapping"]):
             "debris_foundation": "DebrisFoundation",
             "debris_structure": "DebrisStructure",
             "debris_total": "DebrisTotal",
+            "restoration_minimum": "Restor_Days_Min",
+            "restoration_maximum": "Restor_Days_Max",
         }
         # Initialize the base FieldMapping with defaults and any provided overrides.
         super().__init__(defaults=defaults, overrides=overrides)
@@ -137,3 +139,11 @@ class BuildingMapping(FieldMapping["BuildingMapping"]):
     @property
     def debris_total(self) -> str:
         return self.get_value("debris_total")
+    
+    @property
+    def restoration_minimum(self) -> str:
+        return self.get_value("restoration_minimum")
+    
+    @property
+    def restoration_maximum(self) -> str:
+        return self.get_value("restoration_maximum")
