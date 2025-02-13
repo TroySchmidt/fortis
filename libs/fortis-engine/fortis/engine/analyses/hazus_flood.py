@@ -133,8 +133,111 @@ class HazusFloodAnalysis:
         gdf = gdf.join(restoration)
         """
 
-
     def _vectorized_debris_calculation(self):
+        # Get building GeoDataFrame and the fields reference.
+        gdf = self.buildings.gdf
+        fields = self.buildings.fields
+
+        # Work on a copy of the debris lookup DataFrame.
+        lookup_df = self.debris.copy()
+
+        # 1. Create the combined key.
+        lookup_df['merge_key'] = lookup_df['SOccup'] + '_' + lookup_df['FoundType']
+
+        # 2. Create the Interval column using the minimum and maximum flood depths.
+        lookup_df['Interval'] = lookup_df.apply(
+            lambda row: pd.Interval(row['MinFloodDepth'], row['MaxFloodDepth'], closed='left'),
+            axis=1
+        )
+
+        # Set 'MinFloodDepth' as a temporary index to help with grouping.
+        lookup_df = lookup_df.set_index('MinFloodDepth')
+
+        # 3. Group by the combined key and create a nested index.
+        lookup_df = lookup_df.groupby('merge_key')[['Interval', 'FinishWt', 'StructureWt', 'FoundationWt']].apply(
+            lambda x: x.set_index('Interval')
+        )
+        # Reset index so that we can create an IntervalIndex column.
+        lookup_df = lookup_df.reset_index()
+        lookup_df['IntervalIndex'] = pd.IntervalIndex(lookup_df['Interval'])
+        lookup_df = lookup_df.set_index('merge_key')
+
+        # Expand intervals to numeric columns for vector matching.
+        lookup_df['interval_left'] = lookup_df['Interval'].apply(lambda x: x.left)
+        lookup_df['interval_right'] = lookup_df['Interval'].apply(lambda x: x.right)
+
+
+        # Map building foundation types (in-place update) based on your provided logic.
+        gdf['FoundType'] = gdf[fields.foundation_type].map(
+            lambda x: 'Slab' if x in (6, 7) else ('Footing' if 1 <= x <= 5 else None)
+        )
+
+        # Create the lookup key in the buildings dataframe
+        gdf['merge_key'] = gdf[fields.occupancy_type] + '_' + gdf['FoundType']
+
+        # Ensure columns exist for newly assigned weights
+        for col in ['FinishWt', 'StructureWt', 'FoundationWt']:
+            if col not in gdf.columns:
+                gdf[col] = np.nan
+
+        # Prepare a column for depth offset
+        gdf['depth_offset'] = np.nan
+
+        # For efficiency, group the debris table by merge_key and build numeric boundaries to perform fast interval lookups.
+        grouped_lookup = dict(tuple(lookup_df.groupby('merge_key')))
+
+        # Process each key once
+        unique_keys = gdf['merge_key'].dropna().unique()
+        for key in unique_keys:
+            if key not in grouped_lookup:
+                continue
+
+            sub_lookup = grouped_lookup[key]
+            # Sorted arrays of interval boundaries
+            starts = sub_lookup['interval_left'].values
+            ends = sub_lookup['interval_right'].values
+
+            # Select relevant buildings
+            mask = gdf['merge_key'] == key
+            depths = gdf.loc[mask, fields.depth_in_structure].values
+
+            # Use searchsorted to find the appropriate interval index for each depth
+            # We look for the interval such that interval_left <= depth < interval_right
+            idx = np.searchsorted(starts, depths, side='right') - 1  # Potential match
+            
+            # Build arrays to hold results
+            finish_wts = np.full_like(depths, np.nan, dtype=float)
+            structure_wts = np.full_like(depths, np.nan, dtype=float)
+            foundation_wts = np.full_like(depths, np.nan, dtype=float)
+            depth_offsets = np.full_like(depths, np.nan, dtype=float)
+
+            valid = (idx >= 0) & (idx < len(starts)) & (depths >= starts[idx]) & (depths < ends[idx])
+            valid_idx = idx[valid]
+
+            # Grab matching weights
+            finish_wts[valid] = sub_lookup['FinishWt'].values[valid_idx]
+            structure_wts[valid] = sub_lookup['StructureWt'].values[valid_idx]
+            foundation_wts[valid] = sub_lookup['FoundationWt'].values[valid_idx]
+            depth_offsets[valid] = depths[valid] - starts[valid_idx]
+
+            # Assign results back
+            gdf.loc[mask, 'FinishWt'] = finish_wts
+            gdf.loc[mask, 'StructureWt'] = structure_wts
+            gdf.loc[mask, 'FoundationWt'] = foundation_wts
+            gdf.loc[mask, 'depth_offset'] = depth_offsets
+
+        # Clean up and compute debris columns
+        gdf.drop(columns=['FoundType', 'merge_key'], inplace=True)
+        gdf[fields.debris_finish] = gdf[fields.area] * gdf["FinishWt"] / 1000
+        gdf[fields.debris_foundation] = gdf[fields.area] * gdf["FoundationWt"] / 1000
+        gdf[fields.debris_structure] = gdf[fields.area] * gdf["StructureWt"] / 1000
+        gdf[fields.debris_total] = (
+            gdf[fields.debris_finish]
+            + gdf[fields.debris_foundation]
+            + gdf[fields.debris_structure]
+        )
+
+    def _vectorized_debris_calculation2(self):
         gdf = self.buildings.gdf
         fields = self.buildings.fields
         lookup_df = self.debris
@@ -201,7 +304,8 @@ class HazusFloodAnalysis:
                 for interval in matching_intervals:                
                     if pd.notna(interval):#make sure there is a match, -1 from get_indexer if none
                         indices.append(interval.left) #left side is an easy key
-                        lookup_row = lookup_df.loc[lookup_key].loc[str(interval.left)] #single row returned if unique, otherwise first row chosen
+                        matchcheck = lookup_df.loc[lookup_key]
+                        lookup_row = lookup_df.loc[lookup_key].loc[interval.left] #single row returned if unique, otherwise first row chosen
                         FinishWts.append(lookup_row['FinishWt'])
                         StructureWts.append(lookup_row['StructureWt'])
                         FoundationWts.append(lookup_row['FoundationWt']) 
