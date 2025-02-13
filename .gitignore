@@ -169,3 +169,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Example file created we don't want to commit
+examples/flood_losses.csv

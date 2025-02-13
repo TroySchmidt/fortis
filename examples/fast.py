@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 import rasterio
 from fortis.engine.analyses.hazus_flood import HazusFloodAnalysis
@@ -7,7 +8,7 @@ from fortis.engine.vulnerability.default_flood import DefaultFloodFunction
 from fortis.engine.models.fast_buildings import FastBuildings
 
 def run_fast():
-    
+    start_time = time.time()  
     # Define file paths (adjust these paths as necessary)
     base_dir = os.path.dirname(__file__)
     buildings_csv = os.path.join(base_dir, "HI_Honolulu_UDF_sample.csv")
@@ -38,7 +39,11 @@ def run_fast():
     results_csv = os.path.join(base_dir, "flood_losses.csv")
     buildings.gdf.to_csv(results_csv, index=False)
 
-    print("Flood analysis complete. Results saved to:", results_csv)
+    end_time = time.time()                 # Record the end time
+    elapsed_time = end_time - start_time   # Calculate the time difference
+    
+    print(f"Execution time: {elapsed_time:.6f} seconds")
+    print(f"Flood {buildings.gdf.size:,} analysis complete. Results saved to:", results_csv)
 
 
 if __name__ == "__main__":
