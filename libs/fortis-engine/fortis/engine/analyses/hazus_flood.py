@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
@@ -95,8 +96,11 @@ class HazusFloodAnalysis:
                 gdf[fields.inventory_damage_percent] / 100.0 * inventory_cost_series
             )
 
-        """
+        
         # Debris
+        self._vectorized_debris_calculation()
+        #self._calculate_debris_inplace(self.debris)
+        """
         weights = gdf.apply(
             lambda row: self.lookup_debris_weights(
                 row[fields.flood_depth],
@@ -118,6 +122,7 @@ class HazusFloodAnalysis:
             + gdf[fields.debris_structure]
         )
 
+        
         # Restoration Time
         restoration = gdf.apply(
             lambda row: self.lookup_restoration_time(
@@ -127,6 +132,162 @@ class HazusFloodAnalysis:
         )
         gdf = gdf.join(restoration)
         """
+
+
+    def _vectorized_debris_calculation(self):
+        gdf = self.buildings.gdf
+        fields = self.buildings.fields
+        lookup_df = self.debris
+    
+        # 1. Create the combined key.
+        lookup_df['merge_key'] = lookup_df['SOccup'] + '_' + lookup_df['FoundType']
+
+        # 2. Create the IntervalIndex.  This is the key step.
+        lookup_df['Interval'] = lookup_df.apply(lambda row: pd.Interval(row['MinFloodDepth'], row['MaxFloodDepth'], closed='left'), axis=1)
+
+        # Set 'MinFloodDepth' as a temporary index for efficient lookup later
+        lookup_df = lookup_df.set_index('MinFloodDepth')
+
+        # 3. Group by the combined key and create a *nested* index.
+        lookup_df = lookup_df.groupby('merge_key')[['Interval', 'FinishWt', 'StructureWt', 'FoundationWt']].apply(
+                lambda x: x.set_index('Interval'))
+
+        # Now create the Interval Index.
+        lookup_df = lookup_df.reset_index()
+        lookup_df['IntervalIndex'] = pd.IntervalIndex(lookup_df['Interval'])
+        lookup_df = lookup_df.set_index('merge_key')
+
+
+        # 1. Foundation Type Mapping (still in-place, as it's efficient)
+        gdf['FoundType'] = gdf[fields.foundation_type].map(
+            lambda x: 'Slab' if x in (6, 7) else ('Footing' if 1 <= x <= 5 else None)
+        )
+
+        # --- In-place updates ---
+        for col in ['FinishWt', 'StructureWt', 'FoundationWt']:
+            if col not in gdf.columns:
+                gdf[col] = np.nan
+
+        # Iterate through *unique* combinations of Occ and FoundationType.
+        for (occupancy, found_type) in gdf[[fields.occupancy_type, 'FoundType']].drop_duplicates().values:
+            # Create the lookup key.
+            lookup_key = f"{occupancy}_{found_type}"
+
+            # Check if the key exists in the lookup table.
+            if lookup_key in lookup_df.index:
+                # Get the IntervalIndex for this key.
+                interval_index = pd.IntervalIndex(lookup_df.loc[lookup_key, 'IntervalIndex'])
+
+                # Find buildings matching the current occupancy and foundation type.
+                mask = (gdf[fields.occupancy_type] == occupancy) & (gdf['FoundType'] == found_type)
+
+                # Use the IntervalIndex to find matching depths *very efficiently*.
+                # This is the core of the interval-based lookup.
+                depths = gdf.loc[mask, fields.depth_in_structure]
+                
+                # Initialize arrays to collect results; using np.where is much faster
+                indices = []
+                FinishWts = []
+                StructureWts = []
+                FoundationWts = []          
+
+                #Use get_indexer to return array positions of matching intervals.
+                matching_intervals_positions = interval_index.get_indexer(depths)
+
+                #get the interval objects themselves via array positioning
+                matching_intervals = interval_index[matching_intervals_positions]
+
+                #Extract relevant lookup info from the lookuptable for those intervals (avoid iterrows)
+                for interval in matching_intervals:                
+                    if pd.notna(interval):#make sure there is a match, -1 from get_indexer if none
+                        indices.append(interval.left) #left side is an easy key
+                        lookup_row = lookup_df.loc[lookup_key].loc[str(interval.left)] #single row returned if unique, otherwise first row chosen
+                        FinishWts.append(lookup_row['FinishWt'])
+                        StructureWts.append(lookup_row['StructureWt'])
+                        FoundationWts.append(lookup_row['FoundationWt']) 
+                    else: #Handle the no-match condition and add the appropriate nan value.
+                        indices.append(np.nan)
+                        FinishWts.append(np.nan)
+                        StructureWts.append(np.nan)
+                        FoundationWts.append(np.nan)
+                
+                #Apply the values to building dataframe, use of np.where keeps alignment with depth index.
+                gdf.loc[mask, 'FinishWt'] = np.where(pd.notna(indices), FinishWts, np.nan)          
+                gdf.loc[mask, 'StructureWt'] = np.where(pd.notna(indices), StructureWts, np.nan)  
+                gdf.loc[mask, 'FoundationWt'] = np.where(pd.notna(indices), FoundationWts, np.nan)
+
+
+        gdf.drop(columns=['FoundType'], inplace=True)
+
+        
+
+
+    def _calculate_debris_inplace(self, debris_df: pd.DataFrame):
+        """
+        Calculates debris weights and amounts in a vectorized manner,
+        modifying the input GeoDataFrame in place.
+
+        Args:
+            gdf: GeoDataFrame with building data.  Must contain columns:
+                'flood_depth', 'occupancy_type', 'foundation_type', 'area'
+                Modified in place to add debris calculation results.
+            debris_df: DataFrame with debris weight lookup data. Must contain columns:
+                'SOccup', 'FoundType', 'MinFloodDepth', 'MaxFloodDepth',
+                'FinishWt', 'StructureWt', 'FoundationWt'
+            fields: An object with string attributes for column names (as before).
+        """
+
+        # --- 1. Prepare the Lookup Table (debris_df) ---
+        gdf = self.buildings.gdf
+        fields = self.buildings.fields
+
+        # Create a 'FoundType' column in gdf to match debris_df
+        gdf['FoundType'] = np.where(gdf[fields.foundation_type].isin(["S", "F"]), "Slab", "Footing")
+
+        # Ensure correct data types
+        debris_df['MinFloodDepth'] = debris_df['MinFloodDepth'].astype(float)
+        debris_df['MaxFloodDepth'] = debris_df['MaxFloodDepth'].astype(float)
+        gdf[fields.flood_depth] = gdf[fields.flood_depth].astype(float)
+
+
+        # --- 2. Vectorized Lookup using Merge ---
+
+        # Merge based on occupancy and foundation type first.  Use a temporary DataFrame
+        temp_df = pd.merge(
+            gdf,
+            debris_df,
+            left_on=[fields.occupancy_type, "FoundType"],
+            right_on=["SOccup", "FoundType"],
+            how="left",
+        )
+
+        # --- 3. Vectorized Filtering based on Flood Depth ---
+
+        # Create a boolean mask for flood depth
+        depth_mask = (temp_df[fields.flood_depth] >= temp_df["MinFloodDepth"]) & (
+            temp_df[fields.flood_depth] < temp_df["MaxFloodDepth"]
+        )
+
+        # Apply the mask, setting weights to 0 where the condition is false.
+        temp_df.loc[~depth_mask, ["FinishWt", "StructureWt", "FoundationWt"]] = 0
+
+        # --- 4. Calculate Debris (In-Place on gdf) ---
+
+        # Now perform calculations directly, using the temporary DataFrame's columns.
+        gdf[fields.debris_finish] = gdf[fields.area] * temp_df["FinishWt"] / 1000
+        gdf[fields.debris_foundation] = gdf[fields.area] * temp_df["FoundationWt"] / 1000
+        gdf[fields.debris_structure] = gdf[fields.area] * temp_df["StructureWt"] / 1000
+        gdf[fields.debris_total] = (
+            gdf[fields.debris_finish]
+            + gdf[fields.debris_foundation]
+            + gdf[fields.debris_structure]
+        )
+
+        # --- 5. Clean Up (In-Place) ---
+        # Remove the temporary 'FoundType' column from gdf.
+        gdf.drop(columns=['FoundType'], inplace=True)
+
+
 
     def lookup_debris_weights(self, flood_depth, occupancy, foundation_type):
         """

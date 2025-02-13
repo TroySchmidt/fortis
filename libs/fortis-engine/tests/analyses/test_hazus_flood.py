@@ -54,7 +54,7 @@ def test_calculate_losses_with_example_files():
     
     # Load buildings from the CSV file (FastBuildings handles relative vs absolute paths)
     buildings = FastBuildings(csv_file)
-    #buildings._gdf = buildings.gdf.head(10)
+    #buildings._gdf = buildings.gdf.head(100)
 
     # Create a FloodDepthGrid from the depth grid TIFF file.
     depth_grid = FloodDepthGrid(tif_file)

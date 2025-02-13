@@ -67,6 +67,14 @@ class FloodDepthGrid(AbstractFloodDepthGrid):
 
         #if not all(isinstance(geom, Point) for geom in geometry):
         #    raise TypeError("All geometries in the GeoSeries must be Point objects.")
+        # Ensure the GeoSeries has a CRS set
+        if geometry.crs is None:
+            raise ValueError("GeoSeries must have a CRS set.")
+        
+        # Reproject geometry IF NECESSARY.  This is the key change.
+        if geometry.crs != self.data.crs:
+            geometry = geometry.to_crs(self.data.crs)
+        
         # Reproject geometry IF NECESSARY.  This is the key change.
         if geometry.crs != self.data.crs:
             geometry = geometry.to_crs(self.data.crs)

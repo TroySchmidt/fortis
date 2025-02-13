@@ -6,7 +6,36 @@ from fortis.engine.models.abstract_building_points import AbstractBuildingPoints
 
 class DummyBuildingPoints(AbstractBuildingPoints):
     def __init__(self, gdf: gpd.GeoDataFrame):
-        super().__init__()
+        overrides = {
+            "id": "Id",
+            "occupancy_type": "OccupancyType",
+            # All of these below here should be the defaults but if that changes overridding
+            "first_floor_height": "FirstFloorHt",
+            "foundation_type": "FoundationType",
+            "number_stories": "NumStories",
+            "area": "Area",
+            "building_cost": "Cost",
+            "content_cost": "ContentCostUSD",
+            "inventory_cost": "InventoryCostUSD",
+            # These can be added if missing below this line
+            "flood_depth": "Depth_Grid",
+            "depth_in_structure": "Depth_in_Struc",
+            "bddf_id": "BDDF_ID",
+            "building_damage_percent": "BuildingDamagePct",
+            "building_loss": "BldgLossUSD",
+            "cddf_id": "CDDF_ID",
+            "content_damage_percent": "ContentDamagePct",
+            "content_loss": "ContentLossUSD",
+            "iddf_id": "IDDF_ID",
+            "inventory_damage_percent": "InventoryDamagePct",
+            "inventory_loss": "InventoryLossUSD",
+            "debris_finish": "DebrisFinish",
+            "debris_foundation": "DebrisFoundation",
+            "debris_structure": "DebrisStructure",
+            "debris_total": "DebrisTotal",
+        }
+        
+        super().__init__(overrides)
         self._gdf = gdf
 
     @property
