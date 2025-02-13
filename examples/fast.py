@@ -43,7 +43,7 @@ def run_fast():
     elapsed_time = end_time - start_time   # Calculate the time difference
     
     print(f"Execution time: {elapsed_time:.6f} seconds")
-    print(f"Flood {buildings.gdf.size:,} analysis complete. Results saved to:", results_csv)
+    print(f"Flood {len(buildings.gdf):,} analysis complete. Results saved to:", results_csv)
 
 
 if __name__ == "__main__":
