@@ -1,3 +1,34 @@
+# Risk Assessment Engine
+
+## ⚙️ Getting Started
+
+### Installation
+
+1. Install Python 3.10 or later. [Guide](https://www.tutorialsteacher.com/python/install-python).
+
+2. Install uv. [Install Instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+3. Clone the project and navigate to the directory:
+
+    ```bash
+    git clone https://github.com/TroySchmidt/fortis.git
+    cd fortis
+    ```
+
+4. Install dependencies required and for development.
+
+    ```bash
+    uv sync --all-packages
+    ```
+
+5. Run a sample:
+
+    ```bash
+    uv run .\examples\fast.py
+    ```
+
+## Developer notes
+
 ENVIRONMENT SETUP (for development, testing) IN VS CODE:
 
 Clone repo from bash prompt
@@ -10,6 +41,8 @@ Test Explorer UI `uv venv` to create the virtual environment for the monorepo
 Navigate to fortis_engine subfolder.  Run `uv pip install -e .[dev]` to install the required and development dependencies.
 
 `uv run pytest .` to make sure the tests can run.
+
+`uv sync --all-packages`
 
 Example of building the package
 
