@@ -1,6 +1,7 @@
 import numpy as np
 import geopandas as gpd
 import rasterio
+import time
 from .abstract_flood_depth_grid import AbstractFloodDepthGrid
 
 
@@ -51,51 +52,85 @@ class FloodDepthGrid(AbstractFloodDepthGrid):
             geometry (GeoSeries): A GeoSeries of Point geometries (EPSG:4326).
 
         Returns:
-            np.ndarray: Array of flood depth values (float).  Returns np.nan for NoData.
+            np.ndarray: Array of flood depth values (float). Returns np.nan for NoData or out-of-bounds points.
 
         Raises:
-            TypeError: If `geometry` is not a GeoSeries or if elements are not Points.
-            ValueError: If any coordinates are outside raster bounds.
-            TypeError: If self.data is not a rasterio DatasetReader.
+            TypeError: If `geometry` is not a GeoSeries or if self.data is not a rasterio DatasetReader.
         """
-
+        start_time = time.time()
+        
         if not isinstance(self.data, rasterio.DatasetReader):
-            raise TypeError("self.data must be a rasterio DatasetReader object.")
+            raise TypeError("self.data must be a rasterio.DatasetReader object.")
 
         if not isinstance(geometry, gpd.GeoSeries):
             raise TypeError("geometry must be a GeoSeries.")
 
-        #if not all(isinstance(geom, Point) for geom in geometry):
-        #    raise TypeError("All geometries in the GeoSeries must be Point objects.")
         # Ensure the GeoSeries has a CRS set
         if geometry.crs is None:
             raise ValueError("GeoSeries must have a CRS set.")
         
-        # Reproject geometry IF NECESSARY.  This is the key change.
+        # Time CRS reprojection if needed
+        reproject_start = time.time()
+        # Reproject geometry IF NECESSARY
         if geometry.crs != self.data.crs:
             geometry = geometry.to_crs(self.data.crs)
+            print(f"CRS reprojection took {time.time() - reproject_start:.6f} seconds")
+
+        # Time coordinate extraction
+        coord_start = time.time()
+        # Extract x and y coordinates as numpy arrays
+        x_coords = np.array([pt.x for pt in geometry])
+        y_coords = np.array([pt.y for pt in geometry])
+        print(f"Coordinate extraction took {time.time() - coord_start:.6f} seconds")
         
-        # Reproject geometry IF NECESSARY.  This is the key change.
-        if geometry.crs != self.data.crs:
-            geometry = geometry.to_crs(self.data.crs)
-
-        # Check bounds for *all* points efficiently.
+        # Time bounds checking
+        bounds_start = time.time()
+        # Vectorized bounds check using numpy
         bounds = self.data.bounds
-        if not all(bounds.left <= pt.x <= bounds.right and bounds.bottom <= pt.y <= bounds.top for pt in geometry):
-            raise ValueError("Some coordinates are outside the raster bounds.")
-
-
-        # Extract (x, y) tuples from the geometry
-        coords = [(pt.x, pt.y) for pt in geometry]
-
-        # Sample the raster for each coordinate, specifying the band index
+        in_bounds = ((x_coords >= bounds.left) & (x_coords <= bounds.right) & 
+                    (y_coords >= bounds.bottom) & (y_coords <= bounds.top))
+        
+        # Create result array filled with NaNs (for out-of-bounds points)
+        result = np.full(len(geometry), np.nan)
+        print(f"Bounds checking took {time.time() - bounds_start:.6f} seconds")
+        
+        # Only process points that are within bounds
+        if not np.any(in_bounds):
+            print(f"Total method execution time: {time.time() - start_time:.6f} seconds (all points out of bounds)")
+            return result  # All points are out of bounds
+        
+        # Time sampling and result processing
+        sampling_start = time.time()
+        # Get indices of in-bounds points
+        in_bounds_indices = np.where(in_bounds)[0]
+        in_bounds_count = len(in_bounds_indices)
+        
         try:
-            samples = list(self.data.sample(coords, indexes=1))
+            # Create coordinates array for in-bounds points directly with numpy
+            stack_start = time.time()
+            coords = np.column_stack((x_coords[in_bounds], y_coords[in_bounds]))
+            print(f"Column stacking took {time.time() - stack_start:.6f} seconds")
+            
+            # Sample the raster only for in-bounds coordinates
+            raster_sample_start = time.time()
+            samples = np.array(list(self.data.sample(coords, indexes=1))).flatten()
+            print(f"Raster sampling took {time.time() - raster_sample_start:.6f} seconds for {in_bounds_count} points")
+            
+            # Vectorized handling of NoData values
+            processing_start = time.time()
+            valid_samples = samples != self.data.nodata
+            valid_count = np.sum(valid_samples)
+            
+            # Update result array at in-bounds positions with vectorized operation
+            result[in_bounds_indices[valid_samples]] = samples[valid_samples].astype(float)
+            print(f"Result processing took {time.time() - processing_start:.6f} seconds, {valid_count}/{in_bounds_count} valid samples")
+        
         except rasterio.RasterioIOError as e:
-            raise ValueError(f"Error during raster sampling: {e}")
-
-        # Process the samples, handling NoData values, and convert to float
-        result = np.array([float(val[0]) if val[0] != self.data.nodata else np.nan for val in samples])
+            print(f"Warning: Error during raster sampling: {e}")
+        
+        print(f"Sampling and processing took {time.time() - sampling_start:.6f} seconds")
+        print(f"Total method execution time: {time.time() - start_time:.6f} seconds for {len(geometry)} points")
+        
         return result
     
     def get_depth_vectorized_old(self, geometry) -> np.ndarray:

@@ -67,6 +67,10 @@ class HazusFloodAnalysis:
         gdf: gpd.GeoDataFrame = self.buildings.gdf
         fields = self.buildings.fields
 
+        gdf[fields.bddf_id] = None
+        gdf[fields.cddf_id] = None
+        gdf[fields.iddf_id] = None
+
         # Apply the depth grid to the buildings
         gdf[fields.flood_depth] = self.depth_grid.get_depth_vectorized(gdf.geometry)
 

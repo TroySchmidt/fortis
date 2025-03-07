@@ -172,3 +172,4 @@ cython_debug/
 
 # Example file created we don't want to commit
 examples/flood_losses.csv
+examples/nsi_flood_losses.csv
