@@ -23,7 +23,6 @@ def run_fast():
     # Create an instance of the default flood function
     flood_function = DefaultFloodFunction(buildings, flood_type="R")
 
-    flood_function.apply
     # Create the Hazus flood analyzer instance.
     # (Assumes that HazusFloodAnalyzer accepts buildings DataFrame, depth grid, the flood function,
     # and geospatial metadata like transform and crs.)

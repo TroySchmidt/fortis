@@ -75,6 +75,9 @@ class HazusFloodAnalysis:
             gdf[fields.flood_depth] - gdf[fields.first_floor_height]
         )
 
+        # Lookup damage function ids
+        self.vulnerability_func.apply_damage_ids_vectorized()
+
         # Apply the vulnerability function to the buildings
         self.vulnerability_func.apply_damage_percentages()
 
