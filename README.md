@@ -2,6 +2,13 @@
 
 ## ⚙️ Getting Started
 
+### Jupyter Notebook
+Sample notebook running Hawaii data with the FAST depth grid.
+
+<a target="_blank" href="https://colab.research.google.com/github/TroySchmidt/fortis/blob/feat/college-demo/FAST_NSI_Example.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 ### Installation
 
 1. Install Python 3.10 or later. [Guide](https://www.tutorialsteacher.com/python/install-python).
